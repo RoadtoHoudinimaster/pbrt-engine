@@ -4,6 +4,7 @@
 #include"Transform.h"
 #include"interaction.h"
 #include"Geometry.h"
+#include "Texture.h"
 namespace pbrt {
 	class Shape {
 	public:
