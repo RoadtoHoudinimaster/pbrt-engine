@@ -8,7 +8,7 @@ namespace pbrt
 					Point3f(radius,radius,zMax));
 	}
 
-	bool Sphere::Intersect(const Ray& ray, float* tHit, SurfaceInteraction* isect, bool testAlphaTexture) const
+	bool Sphere::Intersect(const Ray& r, float* tHit, SurfaceInteraction* isect, bool testAlphaTexture) const
 	{
 		float phi;
 		Point3f pHit;
@@ -17,11 +17,12 @@ namespace pbrt
 		EFloat ox(ray.o.x, oErr.x), oy(ray.o.y, oErr.y), oz(ray.o.z, oErr.z);
 		EFloat dx(ray.d.x, dErr.x), dy(ray.d.y, dErr.y), dz(ray.d.z, dErr.z);
 		EFloat a = dx * dx + dy * dy + dz * dz;
-		EFloat b = 2 * (dx * ox + dy * oy + dz * oz);
+		EFloat b = 2.0f * (dx * ox + dy * oy + dz * oz);
 		EFloat c = ox * ox + oy * oy + oz * oz - EFloat(radius) * EFloat(radius);
 
 		EFloat t0, t1;
-		if (!Quadratic(a, b, c, &t0, &t1))
+		//Is this the compiler error?
+		if (!Quadratic(a.UpperBound(), b.UpperBound(), c.UpperBound(), &t0, &t1))
 			return false;
 		if (t0.UpperBound() > ray.tMax || t1.LowerBound() <= 0)
 			return false;
@@ -34,7 +35,7 @@ namespace pbrt
 		//Compute sphere hit position and theta
 		pHit = ray((float)tShapeHit);
 		//Refine sphere intersection point
-		pHit = radius / Distance(pHit, Point3f(0, 0, 0));
+		pHit *= radius / Distance(pHit, Point3f(0, 0, 0));
 
 		if (pHit.x == 0 && pHit.y == 0)pHit.x = 1e-5f * radius;
 		phi = std::atan2(pHit.y, pHit.x);
@@ -52,7 +53,7 @@ namespace pbrt
 			tShapeHit = t1;
 			pHit = ray((float)tShapeHit);
 			if (pHit.x == 0 && pHit.y == 0)pHit.x = 1e-5f * radius;
-			phi = std::atan(pHit.y, pHit.x);
+			phi = std::atan2(pHit.y,pHit.x);
 			if (phi < 0)
 				phi += 2 * Pi;
 			//how to master the detail problem ,this is a hard trick,this test thinking is impressive!
@@ -99,7 +100,7 @@ namespace pbrt
 		
 	}
 
-	bool Sphere::IntersectP(const Ray& ray, bool testAlphaTexture) const
+	bool Sphere::IntersectP(const Ray& r, bool testAlphaTexture) const
 	{
 		float phi;
 		Point3f pHit;

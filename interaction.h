@@ -36,8 +36,11 @@ namespace pbrt {
 		bool IsMediumInteraction()const { return !IsSurfaceInteraction(); }
 
 		const Medium* GetMedium()const {
-			std::assert(mediumInterface.inside == mediumInterface.outside);
+			assert(mediumInterface.inside == mediumInterface.outside);
 			return mediumInterface.inside;
+		}
+		const Medium* GetMedium(const Vector3f& w)const {
+			return Dot(w, n) > 0 ? mediumInterface.outside : mediumInterface.inside;
 		}
 		Point3f p;
 		float time;
@@ -50,8 +53,8 @@ namespace pbrt {
 	class SurfaceInteraction : public Interaction {
 	public:
 		SurfaceInteraction() {}
-		SurfaceInteraction(const Point3f& p, const Vector3f& pError, const Point2f& uv
-			const Vector3f& wo, const Vector3f& dpdu, const Vector3f& dpdv, const Normal3f& dndu, const Normal3f& dndv, bool orientationIsAuthoritative);
+		SurfaceInteraction(const Point3f& p, const Vector3f& pError, const Point2f& uv,
+			const Vector3f& wo, const Vector3f& dpdu, const Vector3f& dpdv, const Normal3f& dndu, const Normal3f& dndv, float time,const Shape *sh,int faceIndex = 0) {}
 		void ComputeScatteringFunctions(const RayDifferential& ray, MemoryArena& arena, bool allowMultipleLobes = false, TransportMode mode = TransportMode::Radiance);
 
 		Spectrum Le(const Vector3f& w)const;

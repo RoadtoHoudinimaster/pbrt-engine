@@ -1,11 +1,9 @@
 #include "cylinder.h"
-
-Bounds3f pbrt::Cylinder::ObjectBound() const
-{
-    return Bounds3f(Point3f(-radius,-radius,zMin),Point3f(radius,radius,zMax));
+//Here do not to declare the code of the rendering shape!
+pbrt::Bounds3f pbrt::Cylinder::ObjectBound()const {
+	return Bounds3f(Point3f(-radius, -radius, zMin), Point3f(radius, radius, zMax));
 }
-
-bool pbrt::Cylinder::Intersect(const Ray& ray, float* tHit, SurfaceInteraction* isect, bool testAlphaTexture) const
+bool pbrt::Cylinder::Intersect(const Ray& r, float* tHit, SurfaceInteraction* isect, bool testAlphaTexture) const
 {
     float phi;
     Point3f pHit;
@@ -20,7 +18,7 @@ bool pbrt::Cylinder::Intersect(const Ray& ray, float* tHit, SurfaceInteraction* 
     EFloat b = 2 * (dx * ox + dy * oy);
     EFloat c = ox * ox + oy * oy - EFloat(radius) * EFloat(radius);
     EFloat t0, t1;
-    if (!Quadratic(a, b, c, &t0, &t1))
+    if (!Quadratic(a.UpperBound(), b.UpperBound(), c.UpperBound(), &t0, &t1))
         return false;
     if (t0.UpperBound() > ray.tMax || t1.LowerBound() <= 0)
         return false;

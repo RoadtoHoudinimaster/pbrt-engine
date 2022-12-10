@@ -1,11 +1,11 @@
 #include "Disk.h"
 
-Bounds3f pbrt::Disk::ObjectBound() const
+pbrt::Bounds3f pbrt::Disk::ObjectBound() const
 {
     return Bounds3f(Point3f(-radius,-radius,height),Point3f(radius,radius,height));
 }
 
-bool pbrt::Disk::Intersect(const Ray& ray, float* tHit, SurfaceInteraction* isect, bool testAlphaTexture) const
+bool pbrt::Disk::Intersect(const Ray& r, float* tHit, SurfaceInteraction* isect, bool testAlphaTexture) const
 {
     Vector3f oErr, dErr;
     Ray ray = (*WorldToObject)(r, &oErr, &dErr);
@@ -19,7 +19,7 @@ bool pbrt::Disk::Intersect(const Ray& ray, float* tHit, SurfaceInteraction* isec
     float dist2 = pHit.x * pHit.x + pHit.y * pHit.y;
     if (dist2 > radius * radius || dist2 < innerRadius * innerRadius)
         return false;
-    float phi = std::atan2(pHit.y, pHit, x);
+    float phi = std::atan2(pHit.y, pHit.x);
     if (phi < 0)phi += 2 * Pi;
     if (phi > phiMax)return false;
     //calculate the parametric representation
@@ -35,7 +35,7 @@ bool pbrt::Disk::Intersect(const Ray& ray, float* tHit, SurfaceInteraction* isec
     //I mean I am really hate the design of the Vector3f
     //Compute error Bounds for disk intersection
     Vector3f pError(0, 0, 0);
-    //Initialize SurfaceInteraction from parameteric information
+    //Initialize SurfaceInteraction from parameteric information,this is tricky again
     *isect = (*ObjectToWorld)(SurfaceInteraction(pHit, pError, Point2f(u, v), -ray.d, dpdu, dpdv, dndu, dndv, ray.time, this));
     //Update tHit for quadric intersection
     //Now need to figure out the parametric of the shape!
@@ -53,7 +53,7 @@ float pbrt::Disk::Area() const
     return phiMax * 0.5 * (radius * radius - innerRadius * innerRadius);
 }
 
-Interaction pbrt::Disk::Sample(const Point2f& u) const
+pbrt::Interaction pbrt::Disk::Sample(const Point2f& u) const
 {
     return Interaction();
 }
